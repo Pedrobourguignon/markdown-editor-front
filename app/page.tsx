@@ -1,4 +1,4 @@
-import { MarkDownEditor } from "@/components/MarkdownEditor";
+import { MarkDownEditor } from "@/components/ui/MarkdownEditor";
 
 export default function Home() {
   return (
