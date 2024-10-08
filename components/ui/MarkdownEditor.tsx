@@ -9,14 +9,24 @@ import remarkGfm from "remark-gfm";
 import { FiUser } from "react-icons/fi";
 import { useState } from "react";
 import type { editor as MonacoEditor } from "monaco-editor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./Tabs";
+import { CiClock2 } from "react-icons/ci";
+import { ScrollArea } from "./ScrollArea";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+
+interface ChangeHistoryItem {
+  user: string;
+  timestamp: Date;
+  change: string;
+}
 
 export const MarkDownEditor = () => {
   const [editor, setEditor] =
     useState<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const [content, setContent] = useState("");
   const [activeUsers, setActiveUsers] = useState(1);
+  const [changeHistory, setChangeHistory] = useState<ChangeHistoryItem[]>([]);
 
   const handleEditorDidMount = (
     editorInstance: MonacoEditor.IStandaloneCodeEditor
@@ -85,14 +95,54 @@ export const MarkDownEditor = () => {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle>Preview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="prose dark:prose-invert max-w-none h-[60vh] overflow-auto p-4 bg-white dark:bg-gray-800 rounded-md">
-              <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
-            </div>
-          </CardContent>
+          <Tabs defaultValue="preview">
+            <TabsList className="w-full">
+              <TabsTrigger value="preview" className="w-full">
+                Preview
+              </TabsTrigger>
+              <TabsTrigger value="history" className="w-full">
+                History
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="preview">
+              <CardContent>
+                <ScrollArea className="h-[60vh] w-full rounded-md border p-4">
+                  <div className="prose dark:prose-invert">
+                    <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </TabsContent>
+            <TabsContent value="history">
+              <CardContent>
+                <ScrollArea className="h-[60vh] w-full rounded-md border">
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Change History
+                    </h3>
+                    {changeHistory.map((item, index) => (
+                      <div
+                        key={index}
+                        className="mb-3 pb-3 border-b last:border-b-0"
+                      >
+                        <div className="flex items-center justify-between text-sm text-gray-500 mb-1">
+                          <span className="flex items-center">
+                            <FiUser className="h-4 w-4 mr-1" />
+                            {item.user}
+                          </span>
+                          <span className="flex items-center">
+                            <CiClock2 className="h-4 w-4 mr-1" />
+                            {item.timestamp.toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <p className="text-sm">{item.change}</p>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </div>
