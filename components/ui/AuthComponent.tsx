@@ -14,17 +14,45 @@ import { ICreateUser } from "@/types/ICreateUser";
 import { LoginForm } from "./Forms/LoginForm";
 import { RegisterForm } from "./Forms/RegisterForm";
 import { useRouter } from "next/navigation";
+import { MAIN_SERVICE_ROUTES } from "@/helpers/api";
+import { mainClient } from "@/utils/clients";
+import { toast } from "react-toastify";
 
 export const AuthComponent = () => {
   const router = useRouter();
 
-  const handleRegister = (data: ICreateUser) => {
-    console.log("Register form data:", data);
+  const handleRegister = async (data: ICreateUser) => {
+    try {
+      const response = await mainClient.post(
+        MAIN_SERVICE_ROUTES.createUser,
+        data
+      );
+      if (response.status === 201) {
+        toast.success("Usuário criado com sucesso", { position: "top-right" });
+      } else {
+        toast.error("Encontramos um erro ao criar o usuário", {
+          position: "top-right",
+        });
+      }
+    } catch {
+      toast.error("Encontramos um erro ao criar o usuário", {
+        position: "top-right",
+      });
+    }
   };
 
-  const handleLogin = (data: IUserLogin) => {
-    console.log("Login form data:", data);
-    router.push("/editor");
+  const handleLogin = async (data: IUserLogin) => {
+    try {
+      const response = await mainClient.post(MAIN_SERVICE_ROUTES.login, data);
+      if (response.status === 201) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+        router.push("/editor");
+      }
+    } catch {
+      toast.error("Usuário ou senha inválidos", {
+        position: "top-right",
+      });
+    }
   };
 
   return (
