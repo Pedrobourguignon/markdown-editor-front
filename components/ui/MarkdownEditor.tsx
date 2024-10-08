@@ -16,6 +16,7 @@ export const MarkDownEditor = () => {
   const [editor, setEditor] =
     useState<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const [content, setContent] = useState("");
+  const [activeUsers, setActiveUsers] = useState(1);
 
   const handleEditorDidMount = (
     editorInstance: MonacoEditor.IStandaloneCodeEditor
@@ -45,6 +46,9 @@ export const MarkDownEditor = () => {
             <span>Collaborative Markdown Editor</span>
             <div className="flex items-center space-x-2 text-sm font-normal">
               <FiUser className="h-5 w-5" />
+              <span>
+                {activeUsers} active user{activeUsers !== 1 ? "s" : ""}
+              </span>
             </div>
           </CardTitle>
         </CardHeader>
